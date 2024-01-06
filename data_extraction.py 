@@ -3,7 +3,7 @@
 class DataExtractor:
     '''
     This class can be used to extract data from different data sources including CSV files, an API and an S3 bucket.
-    
+
     Methods:
     --------
     ''' 
