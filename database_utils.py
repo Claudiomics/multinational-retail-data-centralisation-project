@@ -31,7 +31,7 @@ class DatabaseConnector:
         engine = create_engine(f"postgresql+psycopg2://{dict_yaml_func['USER']}:{dict_yaml_func['PASSWORD']}@{dict_yaml_func['HOST']}:{dict_yaml_func['PORT']}/{dict_yaml_func['DATABASE']}")
         # Connect to the database using the engine
         engine.connect()
-        
+
         return engine
     
     # This method lists all the tables in the database to identify tables for data extraction
@@ -54,4 +54,10 @@ class DatabaseConnector:
         
         return unpacked_tuples_list
     
-    
+    ## This method takes in a Pandas DataFrame, table name and my crednetials for sales_data db and uploads it to PostgreSQL
+    def upload_to_db(self, input_df, table_name, file):
+            
+        eng_con = self.init_db_engine(file)
+        # creates table
+        input_df.to_sql(table_name, eng_con, if_exists='replace', index=False)  
+

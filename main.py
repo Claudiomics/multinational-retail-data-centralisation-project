@@ -48,17 +48,32 @@ get_table_names = database_connector.list_db_tables('db_creds.yaml')
 # use clean_user_data() method to clean the data, and check the output by viewing the cleaned data
 #clean_user_df = clean_user.clean_user_data(users_df)
 #print(clean_user_df.head())
+## check the data again by creating another csv file and examining it
+#clean_user_df.to_csv('cleaned_user_data.csv')
 
-### FUNCTION EXTRACTION FOR INCREASED READABILITY!!!
+### FUNCTION EXTRACTION FOR INCREASED READABILITY
+### 2. Retrive, clean and upload the user data from an AWS database in the cloud.
 
 def user_data():
+
+    # create instance of DataExtractor class 
     extract_rds_data = DataExtractor()
+    # Get the users table name
     legacy_users_table_name = get_table_names[1]
+    # Use it to read in/retrieve the data from the RDS table, which returns a dataframe
     users_df = extract_rds_data.read_rds_table(database_connector, legacy_users_table_name, engine)
+
+    # Create an instance of DatabaseCleaning class
     clean_user = DatabaseCleaning()
+    # use clean_user_data() method to clean the data
     clean_user_df = clean_user.clean_user_data(users_df)
+
+    # Upload to a new table called dim_users in SQAlchemy sales_data database.
+    database_connector.upload_to_db(clean_user_df, "dim_users", 'my_creds.yaml')
     return clean_user_df
 
 cleaned_users = user_data()
 print(cleaned_users.head())
+
+
 
