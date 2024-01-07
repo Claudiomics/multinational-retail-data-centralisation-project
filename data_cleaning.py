@@ -110,7 +110,64 @@ class DatabaseCleaning:
         return store_info_mask_nona
 
 
+    def convert_product_weights(self, df):
+        # create new columns, using regex to seperate weight and unit
+        df['numeric_value'] = pd.to_numeric(df['weight'].str.extract('(\d+.\d+|\d+)')[0], errors='coerce') # casts as a float 
+        df['unit'] = df['weight'].str.extract('([a-zA-Z]+)')
+        
+        # define dictionary for conversion
+        conversion_factors = {'ml': 0.001, 'g': 0.001, 'kg': 1, 'k': 1}
+        
+        df.loc[df['unit'] == 'ml', 'numeric_value'] *= conversion_factors['ml']
+        # for every row where ['unit'] equals ml, it multiplies the corresponding 'numeric_value' row by the value of the 'ml' key in the conversion_factors dictionary
+        df.loc[df['unit'] == 'g', 'numeric_value'] *= conversion_factors['g']
+        df.loc[df['unit'].isin(['kg', 'k']), 'numeric_value'] *= conversion_factors['kg']
 
+        df['weight_kg'] = df['numeric_value']
+
+        # drop unnecessary columns
+        df.drop(['weight', 'numeric_value', 'unit'], axis=1, inplace=True)
+        
+        return df
+    
+    def clean_products_data(self, df):
+    
+        # create mask to filter invalid data using removed column:
+        # first correct spelling mistake of 'avaliable'
+        df["removed"] = df["removed"].astype("string")
+        df["removed"] = df["removed"].str.replace('Still_avaliable', 'Still_available', regex=True)
+        # filter
+        availability_list = ["Still_available", "Removed"] 
+        availability_mask = df.loc[:,"removed"].isin(availability_list)
+        product_mask_df = df[availability_mask]
+
+        # remove £ from price column and convert to float64
+        # cast as string
+        product_mask_df["product_price"] = product_mask_df["product_price"].astype("string")
+        # create new col from it while removing the £ sign
+        product_mask_df["product_price_sterling"] = product_mask_df["product_price"].str.replace("£", "", regex=True)
+        # convert to float
+        product_mask_df["product_price_sterling"] = product_mask_df["product_price_sterling"].astype(float)
+        # delete 'product_price' column
+        product_mask_df = product_mask_df.drop(["product_price"], axis=1)
+
+        # cast columns to correct datatype apart from datetime
+        col_data_types = {'product_name':'string', 'category':'string', 'EAN':'string', 'uuid':'string', 'product_code':'string'}
+        for column, data_type in col_data_types.items():
+            product_mask_df[column] = product_mask_df[column].astype(data_type)
+
+        # make all product_code upper()
+        product_mask_df["product_code"] = product_mask_df["product_code"].str.upper()
+            
+        # impute data for the weights which are 0kg, using mean
+        #product_mask_df["weight_kg"].describe()
+        product_mask_df["weight_kg"] = product_mask_df["weight_kg"].fillna(product_mask_df["weight_kg"].mean())  # mean = 3.15
+
+        # cast datetime
+        product_mask_df['date_added'] = product_mask_df['date_added'].apply(parse)
+        product_mask_df['date_added'] = product_mask_df['date_added'].apply(pd.to_datetime, infer_datetime_format=True, errors='coerce') 
+        
+        return product_mask_df
 
 
 

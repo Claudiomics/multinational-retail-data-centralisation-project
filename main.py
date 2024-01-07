@@ -107,3 +107,28 @@ def stores_data():
 
 #print(stores_data())
 
+### 5. Extract, edit, clean and upload data from product details from csf file in s3 bucket
+
+def product_data():
+    # S3 URI:
+    s3_products_address = database_connector.read_db_creds('s3_url.yaml')
+
+    # use the extract_from_s3 method to input the s3 address and return a dataframe
+    get_product_details = DataExtractor()
+    precleaned_product_df = get_product_details.extract_from_s3(s3_products_address)
+    
+    # Use convert_product_weights method to convert weights column to same unit (kg)
+    clean_product_data = DatabaseCleaning()
+    product_weight_kg_df = clean_product_data.convert_product_weights(precleaned_product_df)
+
+    # Clean the rest of the dataframe
+    cleaned_product_df = clean_product_data.clean_products_data(product_weight_kg_df)
+
+    # upload to sales_data database using upload_to_db method in a table named dim_products.
+    database_connector.upload_to_db(cleaned_product_df, "dim_products", 'my_creds.yaml')
+
+    return cleaned_product_df
+
+#print(product_data())
+
+### 6. 

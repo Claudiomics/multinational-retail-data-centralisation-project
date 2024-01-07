@@ -2,7 +2,8 @@ from database_utils import DatabaseConnector
 import pandas as pd
 import tabula
 import requests
-import requests 
+import boto3
+from io import StringIO
 
 class DataExtractor:
     '''
@@ -56,3 +57,17 @@ class DataExtractor:
     
         return stores_df
 
+    def extract_from_s3(self, s3_address):
+
+        # check logged into aws cli 'aws configure list'
+        s3 = boto3.client('s3')
+        # split address into bucket name and object key
+        bucket_name, object_key = s3_address.replace("s3://", "").split("/", 1)
+        
+        # Download the CSV file from S3
+        response = s3.get_object(Bucket=bucket_name, Key=object_key)
+        content = response['Body'].read().decode('utf-8')
+        
+        df = pd.read_csv(StringIO(content))
+        
+        return df

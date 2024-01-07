@@ -1,7 +1,5 @@
 import yaml
-from sqlalchemy import create_engine
-from sqlalchemy import text
-from sqlalchemy import inspect
+from sqlalchemy import create_engine, text, inspect
 
 class DatabaseConnector:
     '''
