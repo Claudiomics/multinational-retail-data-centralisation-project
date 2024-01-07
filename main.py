@@ -1,7 +1,7 @@
 from data_cleaning import DatabaseCleaning
 from database_utils import DatabaseConnector
-import yaml
 from data_extraction import DataExtractor
+import yaml
 
 ''' This is the script where I will use the three different classes (DatabaseConnector,
 DataExtractor and DatabaseCleaning) to retrive data from a variety of sources, clean 
@@ -42,7 +42,7 @@ def user_data():
     clean_user_df = clean_user.clean_user_data(users_df)
 
     # Upload to a new table called dim_users in SQAlchemy sales_data database.
-    database_connector.upload_to_db(clean_user_df, "dim_users_3", 'my_creds.yaml')
+    database_connector.upload_to_db(clean_user_df, "dim_users", 'my_creds.yaml')
     return clean_user_df
 
 if __name__ == "__main__":
@@ -68,7 +68,7 @@ def card_data():
     clean_card_df = card_cleaning.clean_card_data(card_details_df)
     
     # upload to a new table called dim_card_details in SQAlchemy sales_data database
-    database_connector.upload_to_db(clean_card_df, "dim_card_details_3", 'my_creds.yaml')
+    database_connector.upload_to_db(clean_card_df, "dim_card_details", 'my_creds.yaml')
     
     return clean_card_df
 
@@ -108,7 +108,7 @@ def stores_data():
     clean_store_df = store_cleaning.clean_store_data(store_info_df)
 
     # Upload to a new table called dim_store_details in SQAlchemy sales_data database
-    database_connector.upload_to_db(clean_store_df, "dim_store_details_3", 'my_creds.yaml')
+    database_connector.upload_to_db(clean_store_df, "dim_store_details", 'my_creds.yaml')
 
     return clean_store_df
 
@@ -139,7 +139,7 @@ def product_data():
     cleaned_product_df = clean_product_data.clean_products_data(product_weight_kg_df)
 
     # upload to sales_data database using upload_to_db method in a table named dim_products
-    database_connector.upload_to_db(cleaned_product_df, "dim_products_3", 'my_creds.yaml')
+    database_connector.upload_to_db(cleaned_product_df, "dim_products", 'my_creds.yaml')
 
     return cleaned_product_df
 
@@ -167,7 +167,7 @@ def orders_data():
     orders_df = clean_orders_df.clean_orders_data(rds_orders_df)
 
     # Upload to sales_data database using upload_to_db method in a table named orders_table
-    database_connector.upload_to_db(orders_df, "orders_table_3", 'my_creds.yaml')
+    database_connector.upload_to_db(orders_df, "orders_table", 'my_creds.yaml')
 
     return orders_df
 
@@ -197,11 +197,13 @@ def date_data():
     clean_date_df = date_cleaning.clean_date_data(date_time_details_df)
 
     # Upload to sales_data database using upload_to_db method in a table named dim_date_times
-    database_connector.upload_to_db(clean_date_df, "dim_date_times_3", 'my_creds.yaml')
+    database_connector.upload_to_db(clean_date_df, "dim_date_times", 'my_creds.yaml')
 
     return clean_date_df
 
 if __name__ == "__main__":
     date_data()
 
- 
+### 8. Create the Database Schema
+
+# This will be run using an sql file and includes casting column datatypes, adding descriptive columns, assigning primary and foreign keys.

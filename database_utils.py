@@ -1,5 +1,5 @@
-import yaml
 from sqlalchemy import create_engine, text, inspect
+import yaml
 
 class DatabaseConnector:
     '''

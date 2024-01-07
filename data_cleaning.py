@@ -1,5 +1,5 @@
-import pandas as pd
 from dateutil.parser import parse
+import pandas as pd
 
 class DatabaseCleaning:
     '''

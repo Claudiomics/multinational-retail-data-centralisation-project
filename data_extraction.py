@@ -1,9 +1,9 @@
-from database_utils import DatabaseConnector
-import pandas as pd
-import tabula
-import requests
 import boto3
 from io import StringIO
+import pandas as pd
+import requests
+import tabula
+from database_utils import DatabaseConnector
 
 class DataExtractor:
     '''
@@ -23,13 +23,13 @@ class DataExtractor:
             pandas.DataFrame: A DataFrame containing the data from the specified table.
         '''
         if table_name == "legacy_users":
-            df_legacy_users = pd.read_sql_table(table_name="legacy_users", con=engine_instance) 
+            df_legacy_users = pd.read_sql_table(table_name="legacy_users", con=engine) 
             return df_legacy_users
         elif table_name == "orders_table":
-            orders_df = pd.read_sql_table(table_name="orders_table", con=engine_instance)
+            orders_df = pd.read_sql_table(table_name="orders_table", con=engine)
             return orders_df
         elif table_name == "legacy_store_details":
-            legacy_stores_df = pd.read_sql_table(table_name="legacy_store_details", con=engine_instance)
+            legacy_stores_df = pd.read_sql_table(table_name="legacy_store_details", con=engine)
             return legacy_stores_df
 
     def retrieve_pdf_data(self, link):
