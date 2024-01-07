@@ -1,4 +1,4 @@
-#from data_cleaning import DatabaseCleaning
+from data_cleaning import DatabaseCleaning
 from database_utils import DatabaseConnector
 import yaml
 from data_extraction import DataExtractor
@@ -30,13 +30,35 @@ get_table_names = database_connector.list_db_tables('db_creds.yaml')
 
 ## Retrieve database from the cloud
 # create instance of DataExtractor class 
-extract_rds_data = DataExtractor()
-# Get one table name 
-legacy_users_table_name = get_table_names[1]
+#extract_rds_data = DataExtractor()
+# Get the users table name 
+#legacy_users_table_name = get_table_names[1]
 # use it to read in/retrieve the data from the RDS table, which returns a dataframe
-users_df = extract_rds_data.read_rds_table(database_connector, legacy_users_table_name, engine)
+#users_df = extract_rds_data.read_rds_table(database_connector, legacy_users_table_name, engine)
 #print(users_df.head())
 
+## clean user data
+## create a csv file of the dataframe to visualise precleaned data
+#users_df.to_csv('precleaned_user_data.csv')
+## open csv file using VSCode excel view extension and explore the data
+## create a ipynb file to experiemnt with the data cleaning before creating the method in the class
+## run 'import pandas as pd' ''df = pd.read_csv('precleaned_user_data.csv')' 'df' and then create the method
+## create an instance of DatabaseCleaning class
+#clean_user = DatabaseCleaning()
+# use clean_user_data() method to clean the data, and check the output by viewing the cleaned data
+#clean_user_df = clean_user.clean_user_data(users_df)
+#print(clean_user_df.head())
 
+### FUNCTION EXTRACTION FOR INCREASED READABILITY!!!
 
+def user_data():
+    extract_rds_data = DataExtractor()
+    legacy_users_table_name = get_table_names[1]
+    users_df = extract_rds_data.read_rds_table(database_connector, legacy_users_table_name, engine)
+    clean_user = DatabaseCleaning()
+    clean_user_df = clean_user.clean_user_data(users_df)
+    return clean_user_df
+
+cleaned_users = user_data()
+print(cleaned_users.head())
 
