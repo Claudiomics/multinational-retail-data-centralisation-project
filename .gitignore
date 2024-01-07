@@ -2,3 +2,4 @@ db_creds.yaml
 my_creds.yaml
 api_key.yaml
 s3_url.yaml
+json_s3_url.yaml
