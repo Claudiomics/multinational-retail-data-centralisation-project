@@ -1,5 +1,6 @@
 from database_utils import DatabaseConnector
 import pandas as pd
+import tabula
 
 class DataExtractor:
     '''
@@ -20,5 +21,15 @@ class DataExtractor:
         elif table_name == "legacy_store_details":
             legacy_stores_df = pd.read_sql_table(table_name="legacy_store_details", con=engine_instance)
             return legacy_stores_df
+
+    def retrieve_pdf_data(self, link):
+
+        # use tabula to reads remote pdf into list of DataFrame using tabula
+        self.link = link
+        pdf_dataframe_list = tabula.read_pdf(self.link, pages='all') 
+        pdf_dataframe = pd.concat(pdf_dataframe_list, ignore_index=True) # convert list into dataframe
+        
+        return pdf_dataframe
+
 
 

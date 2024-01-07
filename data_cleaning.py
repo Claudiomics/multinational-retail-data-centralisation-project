@@ -51,3 +51,29 @@ class DatabaseCleaning:
     
         return user_df_mask
 
+    def clean_card_data(self, card_df):
+       
+        # mask to filter card_provider to delete invalid data and null rows
+        card_provider_list = ["American Express","Diners Club / Carte Blanche", "Discover", "JCB 15 digit", "JCB 16 digit", "Maestro", "Mastercard", "VISA 13 digit", "VISA 16 digit", "VISA 19 digit"]
+        card_mask = card_df.loc[:,"card_provider"].isin(card_provider_list)
+        df_mask = card_df[card_mask]
+
+        # drop the '?' characters in invalid card_numbers
+        # to search specifically for character, convert to string
+        df_mask['card_number'] = df_mask['card_number'].astype('string')
+        replacements = [("?", "")]
+        for char, replacement in replacements:
+            df_mask["card_number"] = df_mask["card_number"].str.replace(char, replacement)
+        # convert into int64
+        df_mask['card_number'] = df_mask['card_number'].astype('int64')
+
+        # turn other cols into strings 
+        col_data_types = {'expiry_date':'string', 'card_provider':'string'}
+        for column, data_type in col_data_types.items():
+            df_mask[column] = df_mask[column].astype(data_type)
+        
+        # cast columns to datetime
+        df_mask['date_payment_confirmed'] = df_mask['date_payment_confirmed'].apply(parse)
+        df_mask['date_payment_confirmed'] = df_mask['date_payment_confirmed'].apply(pd.to_datetime, infer_datetime_format=True, errors='coerce') 
+
+        return df_mask

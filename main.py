@@ -72,8 +72,42 @@ def user_data():
     database_connector.upload_to_db(clean_user_df, "dim_users", 'my_creds.yaml')
     return clean_user_df
 
-cleaned_users = user_data()
-print(cleaned_users.head())
+#cleaned_users = user_data()
+#print(cleaned_users.head())
+
+#extract_pdf_data = DataExtractor()
+#card_details_df = extract_pdf_data.retrieve_pdf_data('https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf')
+
+#card_details_df.to_csv('precleaned_card_details.csv')
+#card_cleaning = DatabaseCleaning()
+#clean_card_df = card_cleaning.clean_card_data(card_details_df)
+#clean_card_df.to_csv('cleaned_card_details.csv')
+#database_connector.upload_to_db(clean_card_df, "dim_card_details", 'my_creds.yaml')
+
+### 3. Retrive, clean and upload the card data from a PDF document in an AWS S3 bucket
+def card_data():
+    
+    # Create instance of DBConnector class
+    extract_pdf_data = DataExtractor()
+    # takes in uncleaned df as arg, sets it to cleaned_df variable
+    card_details_df = extract_pdf_data.retrieve_pdf_data('https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf')
+    
+    # Create Cleaning instanct
+    card_cleaning = DatabaseCleaning()
+    # Use clean_card_data method to clean df
+    clean_card_df = card_cleaning.clean_card_data(card_details_df)
+    
+    # upload to a new table called dim_card_details in SQAlchemy sales_data database.
+    database_connector.upload_to_db(clean_card_df, "dim_card_details", 'my_creds.yaml')
+    
+    return clean_card_df
+
+#cleaned_card = card_data()
+
+
+
+
+
 
 
 
