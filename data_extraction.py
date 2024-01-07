@@ -7,14 +7,21 @@ from io import StringIO
 
 class DataExtractor:
     '''
-    This class can be used to extract data from different data sources including CSV files, an API and an S3 bucket.
-
-    Methods:
-    --------
+    This class can be used to extract data from different data sources.
     ''' 
 
-    # This method 
-    def read_rds_table(self, instance_of_DbCon_class, table_name, engine_instance):
+    def read_rds_table(self, instance_of_DbCon_class, table_name, engine):
+        '''
+        This function reads a table from an RDS database using the provided SQLAlchemy engine instance.
+
+        Args:
+            instance_of_DbCon_class (DatabaseConnector): An instance of the DatabaseConnector class.
+            table_name (str): The name of the table to be read from the database.
+            engine (sqlalchemy.engine.base.Engine): The SQLAlchemy engine connected to the RDS database.
+            
+        Returns:
+            pandas.DataFrame: A DataFrame containing the data from the specified table.
+        '''
         if table_name == "legacy_users":
             df_legacy_users = pd.read_sql_table(table_name="legacy_users", con=engine_instance) 
             return df_legacy_users
@@ -26,7 +33,15 @@ class DataExtractor:
             return legacy_stores_df
 
     def retrieve_pdf_data(self, link):
+        '''
+        This function retrieves data from a PDF located at the provided link.
 
+        Args:
+            link (str): The link to the PDF.
+            
+        Returns:
+            pandas.DataFrame: A DataFrame containing the data extracted from the PDF.
+        '''
         # use tabula to reads remote pdf into list of DataFrame using tabula
         self.link = link
         pdf_dataframe_list = tabula.read_pdf(self.link, pages='all') 
@@ -35,14 +50,33 @@ class DataExtractor:
         return pdf_dataframe
 
     def list_number_of_stores(self, num_stores_endpoint_url, header):
+        '''
+        This function retrieves the number of stores from an API endpoint.
+
+        Args:
+            num_stores_endpoint_url (str): The URL of the API endpoint to get the number of stores.
+            header (dict): The header containing the API key.
+            
+        Returns:
+            int: The number of stores retrieved from the API.
+        '''
         response = requests.get(num_stores_endpoint_url, headers=header)
         number_of_stores = response.json().get("number_stores", 0)
         
         return number_of_stores 
-
-    # take the retrieve_a_store_endpoint as an argument and extracts all the stores from the API saving them in a pandas DataFrame
     
     def retrieve_stores_data(self, store_endpoint_template, number_of_stores, header):
+        '''
+        This function retrieves data for all stores from an API and saves them in a DataFrame.
+
+        Args:
+            store_endpoint_template (str): The template URL for retrieving store data.
+            number_of_stores (int): The total number of stores.
+            header (dict): The header containing necessary authentication details.
+            
+        Returns:
+            pandas.DataFrame: A DataFrame containing the data for all stores.
+        '''
         stores_list = []
         store_num = 1
       
@@ -58,7 +92,15 @@ class DataExtractor:
         return stores_df
 
     def extract_from_s3(self, s3_address):
+        '''
+        This function extracts data from an S3 bucket based on the provided address.
 
+        Args:
+            s3_address (str): The S3 address specifying the bucket and object key.
+            
+        Returns:
+            pandas.DataFrame: A DataFrame containing the data extracted from the S3 bucket.
+        '''
         # check logged into aws cli 'aws configure list'
         s3 = boto3.client('s3')
         # split address into bucket name and object key

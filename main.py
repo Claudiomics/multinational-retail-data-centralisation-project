@@ -3,35 +3,32 @@ from database_utils import DatabaseConnector
 import yaml
 from data_extraction import DataExtractor
 
-
-
-''' This is the script where I will use the three different classes (DatabaseConnector, 
+''' This is the script where I will use the three different classes (DatabaseConnector,
 DataExtractor and DatabaseCleaning) to retrive data from a variety of sources, clean 
-it and upload a dataframe to the sales_data database in the relational database management 
+the data and upload to the sales_data database in the relational database management 
 system PostgreSQL.'''
 
 ### 1. Creating a connection to the AWS database
 
-## Create an instance of DatabaseConnector class
+# Create an instance of DatabaseConnector class
 database_connector = DatabaseConnector()
-
-## Use read_db_creds mehtod to return yaml credentials in useable format
+# Use read_db_creds mehtod to return yaml credentials in useable format
 yaml_creds = database_connector.read_db_creds('db_creds.yaml')
-#print(yaml_creds) 
-
-## Use these credentials to create an SQLAlchemy database engire to connect to the RDS
+# Use these credentials to create an SQLAlchemy database engire to connect to the RDS
 engine = database_connector.init_db_engine('db_creds.yaml')
-#print(engine)
-
-## List the table names that are in the AWS RDS database
+# List the table names that are in the AWS RDS database
 get_table_names = database_connector.list_db_tables('db_creds.yaml')
 #print(get_table_names) # ['legacy_store_details', 'legacy_users', 'orders_table']
 
-# FUNCTION EXTRACTION FOR INCREASED READABILITY
 ### 2. Retrive, clean and upload the user data from an AWS database in the cloud.
 
 def user_data():
+    '''
+    This function retrieves, cleans, and uploads user data from an AWS RDS database to a new table in the sales_data database.
 
+    Returns:
+        pandas.DataFrame: A cleaned DataFrame containing user data, which has also been uploaded to the "dim_users" table.
+    '''
     # create instance of DataExtractor class 
     extract_rds_data = DataExtractor()
     # Get the users table name
@@ -45,16 +42,21 @@ def user_data():
     clean_user_df = clean_user.clean_user_data(users_df)
 
     # Upload to a new table called dim_users in SQAlchemy sales_data database.
-    database_connector.upload_to_db(clean_user_df, "dim_users", 'my_creds.yaml')
+    database_connector.upload_to_db(clean_user_df, "dim_users_3", 'my_creds.yaml')
     return clean_user_df
 
-#cleaned_users = user_data()
-#print(cleaned_users.head())
+if __name__ == "__main__":
+    user_data()
 
 ### 3. Retrive, clean and upload the card data from a PDF document in an AWS S3 bucket
 
 def card_data():
-    
+    '''
+    This function retrieves, cleans, and uploads card data from a PDF document in an AWS S3 bucket into a new table in the sales_data database.
+
+    Returns:
+        pandas.DataFrame: A cleaned DataFrame containing card data, which has also been uploaded to the "dim_card_details" table.
+    '''
     # Create instance of DBConnector class
     extract_pdf_data = DataExtractor()
     # takes in uncleaned df as arg, sets it to cleaned_df variable
@@ -66,14 +68,12 @@ def card_data():
     clean_card_df = card_cleaning.clean_card_data(card_details_df)
     
     # upload to a new table called dim_card_details in SQAlchemy sales_data database
-    database_connector.upload_to_db(clean_card_df, "dim_card_details", 'my_creds.yaml')
+    database_connector.upload_to_db(clean_card_df, "dim_card_details_3", 'my_creds.yaml')
     
     return clean_card_df
 
-'''
 if __name__ == "__main__":
     card_data()
-'''
 
 ### 4. Extract, clean and upload store details from using an API
 
@@ -86,16 +86,19 @@ Return the number of stores: https://aqj7u5id95.execute-api.eu-west-1.amazonaws.
 
 # Use read_db_creds method to read yaml file with api key
 api_header_details = database_connector.read_db_creds('api_key.yaml')
-
 num_of_stores_endpoint = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores"
-
 api_retrieval = DataExtractor()
 # Use the list_number_of_stores method to get the number of total stores
 total_stores = api_retrieval.list_number_of_stores(num_of_stores_endpoint, api_header_details)
 #print(total_stores) # 451
 
 def stores_data():
-    
+    '''
+    This function retrieves, cleans, and uploads stores data using an API into a new table in the sales_data database.
+
+    Returns:
+        pandas.DataFrame: A cleaned DataFrame containing store data, which has also been uploaded to the "dim_store_details" table.
+    '''
     retrieve_store_endpoint = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/" # number of stores will be added onto the end of this
     # Use retrieve_stores_data method to return the df
     store_info_df = api_retrieval.retrieve_stores_data(retrieve_store_endpoint, total_stores, api_header_details)
@@ -105,15 +108,22 @@ def stores_data():
     clean_store_df = store_cleaning.clean_store_data(store_info_df)
 
     # Upload to a new table called dim_store_details in SQAlchemy sales_data database
-    database_connector.upload_to_db(clean_store_df, "dim_store_details", 'my_creds.yaml')
+    database_connector.upload_to_db(clean_store_df, "dim_store_details_3", 'my_creds.yaml')
 
     return clean_store_df
 
-#print(stores_data())
+if __name__ == "__main__":
+    stores_data()
 
-### 5. Extract, edit, clean and upload data from product details from csf file in s3 bucket
+### 5. Extract, edit, clean and upload data from product details from csv file in s3 bucket
 
 def product_data():
+    '''
+    This function retrieves, cleans, and uploads product data from a csv file in an s3 bucket into a new table in the sales_data database.
+
+    Returns:
+        pandas.DataFrame: A cleaned DataFrame containing product data, which has also been uploaded to the "dim_products" table.
+    '''
     # S3 URI:
     s3_products_address = database_connector.read_db_creds('s3_url.yaml')
 
@@ -129,15 +139,22 @@ def product_data():
     cleaned_product_df = clean_product_data.clean_products_data(product_weight_kg_df)
 
     # upload to sales_data database using upload_to_db method in a table named dim_products
-    database_connector.upload_to_db(cleaned_product_df, "dim_products", 'my_creds.yaml')
+    database_connector.upload_to_db(cleaned_product_df, "dim_products_3", 'my_creds.yaml')
 
     return cleaned_product_df
 
-#print(product_data())
+if __name__ == "__main__":
+    product_data()
 
 ### 6. Retrieve orders table from AWS RDS
 
 def orders_data():
+    '''
+    This function retrieves, cleans, and uploads orders data from an AWS RDS into a new table in the sales_data database.
+
+    Returns:
+        pandas.DataFrame: A cleaned DataFrame containing orders data, which has also been uploaded to the "orders_table" table.
+    '''
     # get table name associated with orders 
     orders_table_name = get_table_names[2]
 
@@ -150,15 +167,22 @@ def orders_data():
     orders_df = clean_orders_df.clean_orders_data(rds_orders_df)
 
     # Upload to sales_data database using upload_to_db method in a table named orders_table
-    database_connector.upload_to_db(orders_df, "orders_table", 'my_creds.yaml')
+    database_connector.upload_to_db(orders_df, "orders_table_3", 'my_creds.yaml')
 
     return orders_df
 
-#print(orders_data())
+if __name__ == "__main__":
+    orders_data()
 
 ### 7. Retrieve, clean and upload date events data from JSON file in s3 bucket.
 
 def date_data():
+    '''
+    This function retrieves, cleans, and uploads orders data from a JSON file in s3 bucket into a new table in the sales_data database.
+
+    Returns:
+        pandas.DataFrame: A cleaned DataFrame containing date data, which has also been uploaded to the "dim_date_times" table.
+    '''
     # create a DataExtractor instance
     extract_json_data = DataExtractor()
 
@@ -173,10 +197,11 @@ def date_data():
     clean_date_df = date_cleaning.clean_date_data(date_time_details_df)
 
     # Upload to sales_data database using upload_to_db method in a table named dim_date_times
-    database_connector.upload_to_db(clean_date_df, "dim_date_times_2", 'my_creds.yaml')
+    database_connector.upload_to_db(clean_date_df, "dim_date_times_3", 'my_creds.yaml')
 
     return clean_date_df
 
-print(date_data())
+if __name__ == "__main__":
+    date_data()
 
  
