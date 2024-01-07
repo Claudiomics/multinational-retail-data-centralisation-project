@@ -70,7 +70,10 @@ def card_data():
     
     return clean_card_df
 
-# print(card_data())
+'''
+if __name__ == "__main__":
+    card_data()
+'''
 
 ### 4. Extract, clean and upload store details from using an API
 
@@ -152,3 +155,28 @@ def orders_data():
     return orders_df
 
 #print(orders_data())
+
+### 7. Retrieve, clean and upload date events data from JSON file in s3 bucket.
+
+def date_data():
+    # create a DataExtractor instance
+    extract_json_data = DataExtractor()
+
+    # Use read_db_creds method to get link to json object
+    json_s3_address = database_connector.read_db_creds('json_s3_url.yaml')
+
+    # use extract_from_s3 method to get a dataframe
+    date_time_details_df = extract_json_data.extract_from_s3(json_s3_address)
+
+    # Clean the data using clean_date_data 
+    date_cleaning = DatabaseCleaning()
+    clean_date_df = date_cleaning.clean_date_data(date_time_details_df)
+
+    # Upload to sales_data database using upload_to_db method in a table named dim_date_times
+    database_connector.upload_to_db(clean_date_df, "dim_date_times_2", 'my_creds.yaml')
+
+    return clean_date_df
+
+print(date_data())
+
+ 

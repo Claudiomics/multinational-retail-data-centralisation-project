@@ -5,28 +5,19 @@ class DatabaseCleaning:
     '''
     This class can be used to clean data from a variety of Amazon Web Services (AWS) data sources.
 
-    Methods:
-    --------
     '''
 
     def clean_user_data(self, user_df):
         '''
-        Cleans and preprocesses user data in the provided DataFrame.
+        This function is used to clean the user dataframe and return the cleaned dataframe.
 
-        Parameters:
-        -----------
-        user_df : pandas.DataFrame
-        The input DataFrame containing user data.
+        Args:
+            user_df (pandas.DataFrame): the input dataframe containing user data. 
 
         Returns:
         --------
-        pandas.DataFrame
-            A cleaned DataFrame with the following operations performed:
-            1. Set "index" column as the DataFrame index.
-            2. Filter rows based on specified countries.
-            3. Convert selected columns to the string datatype.
-            4. Convert date columns to datetime format.'''
-        
+            pandas.DataFrame: the cleaned DataFrame.
+        '''
         # Set index as index
         user_df = user_df.set_index('index')
 
@@ -52,7 +43,16 @@ class DatabaseCleaning:
         return user_df_mask
 
     def clean_card_data(self, card_df):
-       
+        '''
+        This function is used to clean the card dataframe and return the cleaned dataframe.
+
+        Args:
+            card_df (pandas.DataFrame): the input dataframe containing card data. 
+
+        Returns:
+        --------
+            pandas.DataFrame: the cleaned DataFrame.
+        '''
         # mask to filter card_provider to delete invalid data and null rows
         card_provider_list = ["American Express","Diners Club / Carte Blanche", "Discover", "JCB 15 digit", "JCB 16 digit", "Maestro", "Mastercard", "VISA 13 digit", "VISA 16 digit", "VISA 19 digit"]
         card_mask = card_df.loc[:,"card_provider"].isin(card_provider_list)
@@ -79,8 +79,17 @@ class DatabaseCleaning:
         return df_mask
 
     def clean_store_data(self, store_df):
-        
-        # drop lat column as it's empty and latitude col is also there
+        '''
+        This function is used to clean the store dataframe and return the cleaned dataframe.
+
+        Args:
+            store_df (pandas.DataFrame): the input dataframe containing store data. 
+
+        Returns:
+        --------
+            pandas.DataFrame: the cleaned DataFrame.
+        '''
+        # drop empty lat column
         store_info_df_no_lat = store_df.drop('lat', axis=1)
 
         # create store_type mask for cleaning strange data and nulls 
@@ -110,36 +119,55 @@ class DatabaseCleaning:
         return store_info_mask_nona
 
 
-    def convert_product_weights(self, df):
+    def convert_product_weights(self, product_df):
+        '''
+        This function is used to convert the weights column from mixed units to solely kg units within the products dataframe and return the dataframe with converted column.
+
+        Args:
+            product_df (pandas.DataFrame): the input dataframe containing product data. 
+
+        Returns:
+        --------
+            pandas.DataFrame: the DataFrame with weight column converted to kg.
+        '''
         # create new columns, using regex to seperate weight and unit
-        df['numeric_value'] = pd.to_numeric(df['weight'].str.extract('(\d+.\d+|\d+)')[0], errors='coerce') # casts as a float 
-        df['unit'] = df['weight'].str.extract('([a-zA-Z]+)')
+        product_df['numeric_value'] = pd.to_numeric(product_df['weight'].str.extract('(\d+.\d+|\d+)')[0], errors='coerce') # casts as a float 
+        product_df['unit'] = product_df['weight'].str.extract('([a-zA-Z]+)')
         
         # define dictionary for conversion
         conversion_factors = {'ml': 0.001, 'g': 0.001, 'kg': 1, 'k': 1}
         
-        df.loc[df['unit'] == 'ml', 'numeric_value'] *= conversion_factors['ml']
+        product_df.loc[product_df['unit'] == 'ml', 'numeric_value'] *= conversion_factors['ml']
         # for every row where ['unit'] equals ml, it multiplies the corresponding 'numeric_value' row by the value of the 'ml' key in the conversion_factors dictionary
-        df.loc[df['unit'] == 'g', 'numeric_value'] *= conversion_factors['g']
-        df.loc[df['unit'].isin(['kg', 'k']), 'numeric_value'] *= conversion_factors['kg']
+        product_df.loc[product_df['unit'] == 'g', 'numeric_value'] *= conversion_factors['g']
+        product_df.loc[product_df['unit'].isin(['kg', 'k']), 'numeric_value'] *= conversion_factors['kg']
 
-        df['weight_kg'] = df['numeric_value']
+        product_df['weight_kg'] = product_df['numeric_value']
 
         # drop unnecessary columns
-        df.drop(['weight', 'numeric_value', 'unit'], axis=1, inplace=True)
+        product_df.drop(['weight', 'numeric_value', 'unit'], axis=1, inplace=True)
         
-        return df
+        return product_df
     
-    def clean_products_data(self, df):
-    
+    def clean_products_data(self, product_df):
+        '''
+        This function is used to clean the product dataframe and return the cleaned dataframe.
+
+        Args:
+            product_df (pandas.DataFrame): the input dataframe containing product data. 
+
+        Returns:
+        --------
+            pandas.DataFrame: the cleaned DataFrame.
+        '''
         # create mask to filter invalid data using removed column:
         # first correct spelling mistake of 'avaliable'
-        df["removed"] = df["removed"].astype("string")
-        df["removed"] = df["removed"].str.replace('Still_avaliable', 'Still_available', regex=True)
+        product_df["removed"] = product_df["removed"].astype("string")
+        product_df["removed"] = product_df["removed"].str.replace('Still_avaliable', 'Still_available', regex=True)
         # filter
         availability_list = ["Still_available", "Removed"] 
-        availability_mask = df.loc[:,"removed"].isin(availability_list)
-        product_mask_df = df[availability_mask]
+        availability_mask = product_df.loc[:,"removed"].isin(availability_list)
+        product_mask_df = product_df[availability_mask]
 
         # remove £ from price column and convert to float64
         # cast as string
@@ -169,9 +197,19 @@ class DatabaseCleaning:
         
         return product_mask_df
 
-    def clean_orders_data(self, df):
+    def clean_orders_data(self, orders_df):
+        '''
+        This function is used to clean the orders dataframe and return the cleaned dataframe.
+
+        Args:
+            orders_df (pandas.DataFrame): the input dataframe containing orders data. 
+
+        Returns:
+        --------
+            pandas.DataFrame: the cleaned DataFrame.
+        '''
         # drop unnecessary columns 
-        df_dropped_cols = df.drop(["first_name", "last_name", "1"], axis=1) 
+        df_dropped_cols = orders_df.drop(["first_name", "last_name", "1"], axis=1) 
         
         # make product_code upper case
         df_dropped_cols["product_code"] = df_dropped_cols["product_code"].str.upper()
@@ -184,4 +222,39 @@ class DatabaseCleaning:
         return df_dropped_cols
     
 
-    
+    def clean_date_data(self, date_df):
+        '''
+        This function is used to clean the date dataframe and return the cleaned dataframe.
+
+        Args:
+            date_df (pandas.DataFrame): the input dataframe containing date data. 
+
+        Returns:
+        --------
+            pandas.DataFrame: the cleaned DataFrame.
+        '''
+        # use mask to remove invalid data 
+        # use time_period as has fewest variables 
+        time_period_list = ["Evening", "Morning", "Late_Hours", "Midday"]
+        time_period_mask = date_df.loc[:,"time_period"].isin(time_period_list)
+        time_df_mask = date_df[time_period_mask]
+
+        # create new column as an amalgamation of month year day
+        time_df_mask['purchase_date'] = pd.to_datetime(time_df_mask["year"] + "-" + time_df_mask["month"]+ "-" + time_df_mask["day"])
+
+        # cast timestamp and purchase_date as strings to combine
+        time_df_mask["timestamp"] = time_df_mask["timestamp"].astype("string")
+        time_df_mask["purchase_date"] = time_df_mask["purchase_date"].astype("string")
+
+        # combine and convert to datetime as a new column
+        time_df_mask["purchase_datetime"] = pd.to_datetime(time_df_mask["purchase_date"] + " " + time_df_mask["timestamp"])
+
+        # recast the date column as datetime
+        time_df_mask["purchase_date"] = pd.to_datetime(time_df_mask["purchase_date"])
+
+        # cast the other columns as strings
+        col_data_types = {"month": "int32", "year":"int32", "day":"int32", "time_period": "string", "date_uuid": "string"}
+        for column, data_type in col_data_types.items():
+            time_df_mask[column] = time_df_mask[column].astype(data_type)
+        
+        return time_df_mask 

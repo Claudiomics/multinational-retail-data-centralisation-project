@@ -63,11 +63,18 @@ class DataExtractor:
         s3 = boto3.client('s3')
         # split address into bucket name and object key
         bucket_name, object_key = s3_address.replace("s3://", "").split("/", 1)
+
+        # check file type based on extension
+        _, file_extension = object_key.rsplit('.', 1) # underscore is throwaway variable
         
         # Download the CSV file from S3
         response = s3.get_object(Bucket=bucket_name, Key=object_key)
         content = response['Body'].read().decode('utf-8')
         
-        df = pd.read_csv(StringIO(content))
-        
+        # Convert CSV content to DataFrame based on filetype
+        if file_extension.lower() == 'json':
+            df = pd.read_json(content)
+        elif file_extension.lower() == 'csv':
+            df = pd.read_csv(StringIO(content))
+
         return df
