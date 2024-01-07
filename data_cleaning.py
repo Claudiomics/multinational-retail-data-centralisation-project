@@ -15,7 +15,6 @@ class DatabaseCleaning:
             user_df (pandas.DataFrame): the input dataframe containing user data. 
 
         Returns:
-        --------
             pandas.DataFrame: the cleaned DataFrame.
         '''
         # Set index as index
@@ -50,7 +49,6 @@ class DatabaseCleaning:
             card_df (pandas.DataFrame): the input dataframe containing card data. 
 
         Returns:
-        --------
             pandas.DataFrame: the cleaned DataFrame.
         '''
         # mask to filter card_provider to delete invalid data and null rows
@@ -86,7 +84,6 @@ class DatabaseCleaning:
             store_df (pandas.DataFrame): the input dataframe containing store data. 
 
         Returns:
-        --------
             pandas.DataFrame: the cleaned DataFrame.
         '''
         # drop empty lat column
@@ -127,7 +124,6 @@ class DatabaseCleaning:
             product_df (pandas.DataFrame): the input dataframe containing product data. 
 
         Returns:
-        --------
             pandas.DataFrame: the DataFrame with weight column converted to kg.
         '''
         # create new columns, using regex to seperate weight and unit
@@ -157,7 +153,6 @@ class DatabaseCleaning:
             product_df (pandas.DataFrame): the input dataframe containing product data. 
 
         Returns:
-        --------
             pandas.DataFrame: the cleaned DataFrame.
         '''
         # create mask to filter invalid data using removed column:
@@ -205,7 +200,6 @@ class DatabaseCleaning:
             orders_df (pandas.DataFrame): the input dataframe containing orders data. 
 
         Returns:
-        --------
             pandas.DataFrame: the cleaned DataFrame.
         '''
         # drop unnecessary columns 
@@ -230,7 +224,6 @@ class DatabaseCleaning:
             date_df (pandas.DataFrame): the input dataframe containing date data. 
 
         Returns:
-        --------
             pandas.DataFrame: the cleaned DataFrame.
         '''
         # use mask to remove invalid data 

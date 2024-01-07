@@ -3,15 +3,20 @@ from sqlalchemy import create_engine, text, inspect
 
 class DatabaseConnector:
     '''
-    A class which can be used to connect with and upload data to the database. 
+    This class can be used to connect to and upload to the sales_data database. 
 
-    Methods:
-    --------
     ''' 
 
-    # This method returns a yaml file as a dictionary
     def read_db_creds(self, file):
-        
+        '''
+        This function reads the contents of a YAML file and returns a dictionary.
+
+        Args:
+            file (str): Path to the YAML file containing credentials.
+
+        Returns:
+            dict: python dictionary containing the yaml file contents.
+        '''
         # Open YAML file in read mode
         with open(file, 'r') as stream: 
             # Use PyYAML's safe_load to parse the YAML content into a Python dictionary
@@ -19,9 +24,16 @@ class DatabaseConnector:
     
         return data_loaded
     
-    # This method uses the yaml dictionary to create a sqlachemy database engine
     def init_db_engine(self, file):
-        
+        '''
+        This function uses the yaml credentials dictionary to initialise and return a SQAlchemy database engine.
+
+        Args:
+            file (str): Path to the YAML file containing the database credentials.
+
+        Returns:
+            sqlalchemy.engine.base.Engine: A SQLAlchemy engine connected to the specified database.
+        '''
         # Read database credentials from the specified YAML file
         dict_yaml_func = self.read_db_creds(file)
 
@@ -32,9 +44,16 @@ class DatabaseConnector:
 
         return engine
     
-    # This method lists all the tables in the database to identify tables for data extraction
     def list_db_tables(self, file):
+        '''
+        This function lists all tables in the connected database.
 
+        Args:
+            file (str): Path to the YAML file containing the database credentials.
+
+        Returns:
+            list: A list of table names in the 'public' schema.
+        '''
         # Create the database engine
         engine = self.init_db_engine(file) 
         # Inspect the structure of the database
@@ -52,9 +71,16 @@ class DatabaseConnector:
         
         return unpacked_tuples_list
     
-    ## This method takes in a Pandas DataFrame, table name and my crednetials for sales_data db and uploads it to PostgreSQL
     def upload_to_db(self, input_df, table_name, file):
-            
+        '''
+        This function uploads a Pandas DataFrame to the specified table in the connected PostgreSQL database. 
+
+        Args:
+            input_df (pandas.DataFrame): The DataFrame to be uploaded to the database.
+            table_name (str): The name of the table to which the DataFrame should be uploaded.
+            file (str): Path to the YAML file containing the database credentials.
+        
+        '''  
         eng_con = self.init_db_engine(file)
         # creates table
         input_df.to_sql(table_name, eng_con, if_exists='replace', index=False)  
