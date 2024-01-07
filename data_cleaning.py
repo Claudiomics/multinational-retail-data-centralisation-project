@@ -169,5 +169,19 @@ class DatabaseCleaning:
         
         return product_mask_df
 
+    def clean_orders_data(self, df):
+        # drop unnecessary columns 
+        df_dropped_cols = df.drop(["first_name", "last_name", "1"], axis=1) 
+        
+        # make product_code upper case
+        df_dropped_cols["product_code"] = df_dropped_cols["product_code"].str.upper()
+        
+        # cast other columns to string
+        col_data_types = {"date_uuid":"string", "user_uuid":"string", "store_code":"string", "product_code":"string"}
+        for column, data_type in col_data_types.items():
+            df_dropped_cols[column] = df_dropped_cols[column].astype(data_type)
+        
+        return df_dropped_cols
+    
 
-
+    

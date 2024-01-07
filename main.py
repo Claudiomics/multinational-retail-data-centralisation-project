@@ -27,7 +27,7 @@ engine = database_connector.init_db_engine('db_creds.yaml')
 get_table_names = database_connector.list_db_tables('db_creds.yaml')
 #print(get_table_names) # ['legacy_store_details', 'legacy_users', 'orders_table']
 
-### FUNCTION EXTRACTION FOR INCREASED READABILITY
+# FUNCTION EXTRACTION FOR INCREASED READABILITY
 ### 2. Retrive, clean and upload the user data from an AWS database in the cloud.
 
 def user_data():
@@ -52,6 +52,7 @@ def user_data():
 #print(cleaned_users.head())
 
 ### 3. Retrive, clean and upload the card data from a PDF document in an AWS S3 bucket
+
 def card_data():
     
     # Create instance of DBConnector class
@@ -73,12 +74,12 @@ def card_data():
 
 ### 4. Extract, clean and upload store details from using an API
 
-#The store data can be retrieved through the use of an API.
-#The API has two GET methods. One will return the number of stores in the business and the other to retrieve a store given a store number.
+'''The store data can be retrieved through the use of an API.
+The API has two GET methods. One will return the number of stores in the business and the other to retrieve a store given a store number.
 
-#The two endpoints for the API are as follows:
-#Retrieve a store: https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}
-#Return the number of stores: https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores
+The two endpoints for the API are as follows:
+Retrieve a store: https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}
+Return the number of stores: https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'''
 
 # Use read_db_creds method to read yaml file with api key
 api_header_details = database_connector.read_db_creds('api_key.yaml')
@@ -124,11 +125,30 @@ def product_data():
     # Clean the rest of the dataframe
     cleaned_product_df = clean_product_data.clean_products_data(product_weight_kg_df)
 
-    # upload to sales_data database using upload_to_db method in a table named dim_products.
+    # upload to sales_data database using upload_to_db method in a table named dim_products
     database_connector.upload_to_db(cleaned_product_df, "dim_products", 'my_creds.yaml')
 
     return cleaned_product_df
 
 #print(product_data())
 
-### 6. 
+### 6. Retrieve orders table from AWS RDS
+
+def orders_data():
+    # get table name associated with orders 
+    orders_table_name = get_table_names[2]
+
+    # create instance of DataExtractor class 
+    extract_rds_data = DataExtractor()
+    rds_orders_df = extract_rds_data.read_rds_table(database_connector, orders_table_name, engine)
+
+    # use it to clean the df and return clean df
+    clean_orders_df = DatabaseCleaning()
+    orders_df = clean_orders_df.clean_orders_data(rds_orders_df)
+
+    # Upload to sales_data database using upload_to_db method in a table named orders_table
+    database_connector.upload_to_db(orders_df, "orders_table", 'my_creds.yaml')
+
+    return orders_df
+
+#print(orders_data())
