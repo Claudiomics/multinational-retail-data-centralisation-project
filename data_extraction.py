@@ -1,6 +1,8 @@
 from database_utils import DatabaseConnector
 import pandas as pd
 import tabula
+import requests
+import requests 
 
 class DataExtractor:
     '''
@@ -31,5 +33,26 @@ class DataExtractor:
         
         return pdf_dataframe
 
+    def list_number_of_stores(self, num_stores_endpoint_url, header):
+        response = requests.get(num_stores_endpoint_url, headers=header)
+        number_of_stores = response.json().get("number_stores", 0)
+        
+        return number_of_stores 
 
+    # take the retrieve_a_store_endpoint as an argument and extracts all the stores from the API saving them in a pandas DataFrame
+    
+    def retrieve_stores_data(self, store_endpoint_template, number_of_stores, header):
+        stores_list = []
+        store_num = 1
+      
+        for store_num in range(0, number_of_stores):
+            full_endpoint = store_endpoint_template + str(store_num)
+            response = requests.get(full_endpoint, headers=header)
+            store_data = response.json()
+            stores_list.append(store_data)
+            store_num += 1
+
+        stores_df = pd.DataFrame(stores_list)
+    
+        return stores_df
 

@@ -4,6 +4,7 @@ import yaml
 from data_extraction import DataExtractor
 
 
+
 ''' This is the script where I will use the three different classes (DatabaseConnector, 
 DataExtractor and DatabaseCleaning) to retrive data from a variety of sources, clean 
 it and upload a dataframe to the sales_data database in the relational database management 
@@ -25,31 +26,6 @@ engine = database_connector.init_db_engine('db_creds.yaml')
 ## List the table names that are in the AWS RDS database
 get_table_names = database_connector.list_db_tables('db_creds.yaml')
 #print(get_table_names) # ['legacy_store_details', 'legacy_users', 'orders_table']
-
-### 2. Retrive, clean and upload the user data
-
-## Retrieve database from the cloud
-# create instance of DataExtractor class 
-#extract_rds_data = DataExtractor()
-# Get the users table name 
-#legacy_users_table_name = get_table_names[1]
-# use it to read in/retrieve the data from the RDS table, which returns a dataframe
-#users_df = extract_rds_data.read_rds_table(database_connector, legacy_users_table_name, engine)
-#print(users_df.head())
-
-## clean user data
-## create a csv file of the dataframe to visualise precleaned data
-#users_df.to_csv('precleaned_user_data.csv')
-## open csv file using VSCode excel view extension and explore the data
-## create a ipynb file to experiemnt with the data cleaning before creating the method in the class
-## run 'import pandas as pd' ''df = pd.read_csv('precleaned_user_data.csv')' 'df' and then create the method
-## create an instance of DatabaseCleaning class
-#clean_user = DatabaseCleaning()
-# use clean_user_data() method to clean the data, and check the output by viewing the cleaned data
-#clean_user_df = clean_user.clean_user_data(users_df)
-#print(clean_user_df.head())
-## check the data again by creating another csv file and examining it
-#clean_user_df.to_csv('cleaned_user_data.csv')
 
 ### FUNCTION EXTRACTION FOR INCREASED READABILITY
 ### 2. Retrive, clean and upload the user data from an AWS database in the cloud.
@@ -75,15 +51,6 @@ def user_data():
 #cleaned_users = user_data()
 #print(cleaned_users.head())
 
-#extract_pdf_data = DataExtractor()
-#card_details_df = extract_pdf_data.retrieve_pdf_data('https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf')
-
-#card_details_df.to_csv('precleaned_card_details.csv')
-#card_cleaning = DatabaseCleaning()
-#clean_card_df = card_cleaning.clean_card_data(card_details_df)
-#clean_card_df.to_csv('cleaned_card_details.csv')
-#database_connector.upload_to_db(clean_card_df, "dim_card_details", 'my_creds.yaml')
-
 ### 3. Retrive, clean and upload the card data from a PDF document in an AWS S3 bucket
 def card_data():
     
@@ -97,17 +64,46 @@ def card_data():
     # Use clean_card_data method to clean df
     clean_card_df = card_cleaning.clean_card_data(card_details_df)
     
-    # upload to a new table called dim_card_details in SQAlchemy sales_data database.
+    # upload to a new table called dim_card_details in SQAlchemy sales_data database
     database_connector.upload_to_db(clean_card_df, "dim_card_details", 'my_creds.yaml')
     
     return clean_card_df
 
-#cleaned_card = card_data()
+# print(card_data())
 
+### 4. Extract, clean and upload store details from using an API
 
+#The store data can be retrieved through the use of an API.
+#The API has two GET methods. One will return the number of stores in the business and the other to retrieve a store given a store number.
 
+#The two endpoints for the API are as follows:
+#Retrieve a store: https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}
+#Return the number of stores: https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores
 
+# Use read_db_creds method to read yaml file with api key
+api_header_details = database_connector.read_db_creds('api_key.yaml')
 
+num_of_stores_endpoint = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores"
 
+api_retrieval = DataExtractor()
+# Use the list_number_of_stores method to get the number of total stores
+total_stores = api_retrieval.list_number_of_stores(num_of_stores_endpoint, api_header_details)
+#print(total_stores) # 451
 
+def stores_data():
+    
+    retrieve_store_endpoint = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/" # number of stores will be added onto the end of this
+    # Use retrieve_stores_data method to return the df
+    store_info_df = api_retrieval.retrieve_stores_data(retrieve_store_endpoint, total_stores, api_header_details)
+
+    # clean stores_df
+    store_cleaning = DatabaseCleaning()
+    clean_store_df = store_cleaning.clean_store_data(store_info_df)
+
+    # Upload to a new table called dim_store_details in SQAlchemy sales_data database
+    database_connector.upload_to_db(clean_store_df, "dim_store_details", 'my_creds.yaml')
+
+    return clean_store_df
+
+#print(stores_data())
 

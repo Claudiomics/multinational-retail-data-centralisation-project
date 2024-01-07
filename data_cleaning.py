@@ -77,3 +77,40 @@ class DatabaseCleaning:
         df_mask['date_payment_confirmed'] = df_mask['date_payment_confirmed'].apply(pd.to_datetime, infer_datetime_format=True, errors='coerce') 
 
         return df_mask
+
+    def clean_store_data(self, store_df):
+        
+        # drop lat column as it's empty and latitude col is also there
+        store_info_df_no_lat = store_df.drop('lat', axis=1)
+
+        # create store_type mask for cleaning strange data and nulls 
+        store_type_list = ["Local", "Mall Kiosk", "Super Store", "Outlet", "Web Portal"]
+        store_type_mask = store_info_df_no_lat.loc[:,"store_type"].isin(store_type_list)
+        store_info_mask = store_info_df_no_lat[store_type_mask]
+    
+        # ValueError: could not convert string to float: 'N/A'
+        # drop N/A from longitude or latitude at index 0
+        store_info_mask_nona = store_info_mask.drop([0], axis=0) # had to re-enter this row in SQL
+
+        # convert columns to string and flaot64
+        col_data_types = {"latitude":"float64", "longitude":"float64", "address":"string", "locality":"string", "store_code":"string", "store_type":"string", "country_code":"string", "continent":"string"}
+        for column, data_type in col_data_types.items():
+            store_info_mask_nona[column] = store_info_mask_nona[column].astype(data_type)
+
+        # staff_number has values with "accidental" letters mixed in so can't convert to int64
+        store_info_mask_nona['staff_numbers'] = store_info_mask_nona['staff_numbers'].replace(["J78", "30e", "80R", "A97", "3n9"], ["78", "30", "80", "97", "39"])
+        # convert to int64
+        store_info_mask_nona['staff_numbers'] = store_info_mask_nona['staff_numbers'].astype("int64")
+        #print(store_info_mask_nona.info())
+
+        # change opening_date to datetime64
+        store_info_mask_nona['opening_date'] = store_info_mask_nona['opening_date'].apply(parse)
+        store_info_mask_nona['opening_date'] = store_info_mask_nona['opening_date'].apply(pd.to_datetime, infer_datetime_format=True, errors='coerce') 
+
+        return store_info_mask_nona
+
+
+
+
+
+
