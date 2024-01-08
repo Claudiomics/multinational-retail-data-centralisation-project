@@ -1,6 +1,8 @@
 /* 
 This file will be used to run SQL queries on the sales_data database to create the database schema.
-*/
+1 - 7: Changing tables
+8: Assigning primary keys
+9: Assigning foreign keys*/
 
 /* 1. Cast the column in orders_table to the correct datatypes:
 +------------------+--------------------+--------------------+

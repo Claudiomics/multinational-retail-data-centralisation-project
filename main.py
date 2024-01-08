@@ -1,6 +1,8 @@
 from data_cleaning import DatabaseCleaning
 from database_utils import DatabaseConnector
 from data_extraction import DataExtractor
+import matplotlib.pyplot as plt
+import numpy as np
 import yaml
 
 ''' This is the script where I will use the three different classes (DatabaseConnector,
@@ -45,8 +47,6 @@ def user_data():
     database_connector.upload_to_db(clean_user_df, "dim_users", 'my_creds.yaml')
     return clean_user_df
 
-if __name__ == "__main__":
-    user_data()
 
 ### 3. Retrive, clean and upload the card data from a PDF document in an AWS S3 bucket
 
@@ -72,8 +72,6 @@ def card_data():
     
     return clean_card_df
 
-if __name__ == "__main__":
-    card_data()
 
 ### 4. Extract, clean and upload store details from using an API
 
@@ -112,8 +110,6 @@ def stores_data():
 
     return clean_store_df
 
-if __name__ == "__main__":
-    stores_data()
 
 ### 5. Extract, edit, clean and upload data from product details from csv file in s3 bucket
 
@@ -143,8 +139,6 @@ def product_data():
 
     return cleaned_product_df
 
-if __name__ == "__main__":
-    product_data()
 
 ### 6. Retrieve orders table from AWS RDS
 
@@ -171,8 +165,6 @@ def orders_data():
 
     return orders_df
 
-if __name__ == "__main__":
-    orders_data()
 
 ### 7. Retrieve, clean and upload date events data from JSON file in s3 bucket.
 
@@ -203,7 +195,26 @@ def date_data():
 
 if __name__ == "__main__":
     date_data()
+    orders_data()
+    product_data()
+    stores_data()
+    card_data()
+    user_data()
 
 ### 8. Create the Database Schema
 
-# This will be run using an sql file and includes casting column datatypes, adding descriptive columns, assigning primary and foreign keys.
+# This will be run using the db_schema.sql file and includes casting column datatypes, adding descriptive columns, assigning primary and foreign keys.
+    
+### 9. Query the Database  
+
+# Answering business questions about the sales 
+# Here's a sneak peak at the result queary 5: What percentage of sales come through each type of store?
+
+if __name__ == "__main__":
+    fig = plt.figure()
+    ax = fig.add_axes([0,0,1,1])
+    ax.axis('equal')
+    store_type = ['Local', 'Web Portal', 'Super Store', 'Mall Kiosk', 'Outlet']
+    percentage_total = np.array([44.557729, 22.357841, 15.853934, 9.048969, 8.181527])
+    ax.pie(percentage_total, labels=store_type, autopct='%1.2f%%')
+    plt.show()
