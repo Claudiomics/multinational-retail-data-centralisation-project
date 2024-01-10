@@ -56,41 +56,41 @@ aws configure
 ```
 - Enter your AWS Access Key ID, Secret Access Key, default region, and default output format to access the S3 bucket
 
-## Libraries Required for this project
+## Libraries and Modules Required for This Project
 
-- [PyYAML](#)
+- [PyYAML](#) - Used for reading YAML files that contain credentials and configuration settings
 ```
 pip install pyyaml
 ```
-- [Psycopg2](#)
+- [Psycopg2](#) - Used for connecting to the PostgreSQL database and executing SQL queries
 ```
 pip install psycopg2-binary
 ```
-- [SQLAlchemy](#)
+- [SQLAlchemy](#) - Used for creating a SQLAlchemy database engine to connect to the database
 ```
 pip install sqlalchemy
 ```
-- [Pandas](#)
+- [Pandas](#) - Used to create DataFrames, clean them and transform them
 ```
 pip install pandas 
 ```
-- [Dateutil](#)
+- [Dateutil](#) - Used to parse date strings during data cleaning
 ```
 pip install python-dateutil
 ```
-- [Boto3](#)
+- [Boto3](#) - Used for interacting with AWS S3 to extract data from an S3 bucket
 ```
 pip install boto3
 ```
-- [Requests](#)
+- [Requests](#) - Used to retrieve data from an API endpoint
 ```
 pip install requests
 ```
-- [Tabula](#)
+- [Tabula](#) - Used to extract data from a PDF file
 ```
 pip install tabula-py
 ```
-- [NumPy and MatPlotLib](#)
+- [NumPy and MatPlotLib](#) - Used to generate a pie chart visualization of the percentage of sales by store type
 ```
 pip install numpy matplotlib
 ```
@@ -214,7 +214,6 @@ Overall, I am happy with how I completed this project. It was a steep learning c
 In future, I would improve my data cleaning skills so I don't get any warning messages and possibly extract more of the code in my main.py file so it's easier to understand. I'd also like to be able to generate an Entity-Relationship Diagram (ERD) of the database using python, as this is something I tried to do but failed. 
 
 Thanks to all the AiCore staff for guiding me through this project when I needed help, I really appreciate it.
-![image](https://github.com/Claudiomics/multinational-retail-data-centralisation-project/assets/149532217/57144113-31e7-4d56-bd7b-e9c5f30d521b)
 
 ## Licence Information
 
