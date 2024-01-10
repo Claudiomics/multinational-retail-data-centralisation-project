@@ -58,39 +58,39 @@ aws configure
 
 ## Libraries and Modules Required for This Project
 
-- [PyYAML](#) - Used for reading YAML files that contain credentials and configuration settings
+- [PyYAML](#https://pypi.org/project/PyYAML/) - Used for reading YAML files that contain credentials and configuration settings
 ```
 pip install pyyaml
 ```
-- [Psycopg2](#) - Used for connecting to the PostgreSQL database and executing SQL queries
+- [Psycopg2](#https://pypi.org/project/psycopg2/) - Used for connecting to the PostgreSQL database and executing SQL queries
 ```
 pip install psycopg2-binary
 ```
-- [SQLAlchemy](#) - Used for creating a SQLAlchemy database engine to connect to the database
+- [SQLAlchemy](#https://www.sqlalchemy.org/) - Used for creating a SQLAlchemy database engine to connect to the database
 ```
 pip install sqlalchemy
 ```
-- [Pandas](#) - Used to create DataFrames, clean them and transform them
+- [Pandas](#https://pandas.pydata.org/) - Used to create DataFrames, clean them and transform them
 ```
 pip install pandas 
 ```
-- [Dateutil](#) - Used to parse date strings during data cleaning
+- [Dateutil](#https://pypi.org/project/python-dateutil/) - Used to parse date strings during data cleaning
 ```
 pip install python-dateutil
 ```
-- [Boto3](#) - Used for interacting with AWS S3 to extract data from an S3 bucket
+- [Boto3](#https://boto3.amazonaws.com/v1/documentation/api/latest/index.html) - Used for interacting with AWS S3 to extract data from an S3 bucket
 ```
 pip install boto3
 ```
-- [Requests](#) - Used to retrieve data from an API endpoint
+- [Requests](#https://pypi.org/project/requests/) - Used to retrieve data from an API endpoint
 ```
 pip install requests
 ```
-- [Tabula](#) - Used to extract data from a PDF file
+- [Tabula](#https://pypi.org/project/tabula-py/) - Used to extract data from a PDF file
 ```
 pip install tabula-py
 ```
-- [NumPy and MatPlotLib](#) - Used to generate a pie chart visualization of the percentage of sales by store type
+- [NumPy and MatPlotLib](#https://matplotlib.org/) - Used to generate a pie chart visualization of the percentage of sales by store type
 ```
 pip install numpy matplotlib
 ```
