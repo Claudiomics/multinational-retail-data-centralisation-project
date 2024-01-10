@@ -1,5 +1,6 @@
 # Multinational Retail Data Centralisation Project
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) 
+![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 
 # Table of Contents
@@ -16,9 +17,9 @@
 
 Welcome to the Multinational Retail Data Centralisation Project! 
 
-This project is part of my journey through the Cloud Engineering pathway at AiCore. The projects aim is to centralise and query retail data from a multinational business using cloud technologies.
+This project is part of my journey through the Cloud Engineering pathway at AiCore. The projects aim is to centralise and query data from a multinational retail business using cloud technologies.
 
-The script retrieves data from a multitude of sources on AWS, including an Amazon Relational Database Service (RDS) instance, a PDF document, JSON and CSV files in an AWS S3 bucket, and through interactions with an API.
+The script retrieves data from a multitude of sources on AWS, including an Amazon Relational Database Service (RDS) instance, a PDF document, JSON and CSV files in an AWS S3 bucket, and through interactions with an API. It then cleans these DataFrames and uploads them to a PostgreSQL database, generates the schema and runs SQL queries relating to the business model.
 
 ## Installation 
 
@@ -28,56 +29,41 @@ Clone the repository into this folder on your local machine by running the follo
 ```
 git clone https://github.com/Claudiomics/multinational-retail-data-centralisation-project.git
 ```
-<!-- Do I need to tell someone to go onto pgadmin4 and create a sales_data db, connect via terminal cli and such? -->
-
 Then move into within the folder, run the following code:
-
 ```
 python3 main.py
 
 ```
 
-This will generate a sales_data database in postgresql, set up the schema (shown below) and run queries on it.
+This generates a sales_data database in postgresql, set up the schema (shown below) and run queries on it.
 
 ![ERD of sales_data](https://i.imgur.com/mKZaZOp.png)
 
+To upload to the sales_data database and query the database through SQL scripts, the database needed to be initialised and connected to:
+
+- Right click on Databases in PgAdmin4 and create sales_data
+- In VSCode install the SQL Tools extension
+- To connect to PostgreSQL, open the extension and configure connection by entering the connection details, including host, port, username, password, and database name
+
+To retrieve the data from the S3 bucket, the CLI needed to be connected to:
+
+- Install AWS CLI
+- Configure AWS CLI by typing the following into the terminal:
+```
+aws configure
+```
+- Enter your AWS Access Key ID, Secret Access Key, default region, and default output format to access the S3 bucket.
+
+## Libraries Required for this project
+
+- [Pandas](#
+```
+
+```
+
 ## File Structure 
 ```
-.
-├── README.md
-├── __pycache__
-│   ├── data_cleaning.cpython-311.pyc
-│   ├── data_extraction.cpython-311.pyc
-│   └── database_utils.cpython-311.pyc
-├── api_key.yaml
-├── business_queries.sql
-├── create_schema.sql
-├── data_cleaning.py
-├── data_cleaning_visualisation
-│   ├── cleaned_card_details.csv
-│   ├── cleaned_date_details.csv
-│   ├── cleaned_orders_data.csv
-│   ├── cleaned_products.csv
-│   ├── cleaned_store_details.csv
-│   ├── cleaned_user_data.csv
-│   ├── precleaned_card_details.csv
-│   ├── precleaned_date_details.csv
-│   ├── precleaned_orders_data.csv
-│   ├── precleaned_products.csv
-│   ├── precleaned_stores.csv
-│   ├── precleaned_user_data.csv
-│   ├── products_in_kg.csv
-│   └── test_cleaning.ipynb
-├── data_extraction.py
-├── database_utils.py
-├── db_creds.yaml
-├── json_s3_url.yaml
-├── main.py
-├── my_creds.yaml
-├── s3_url.yaml
-└── sql_notes
-    ├── db_query_notes.sql
-    └── db_schema_notes.sql
+
 ```
 
 
