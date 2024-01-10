@@ -8,12 +8,12 @@
 2. [Installation](#installation)
 3. [File Structure](#file-structure)
 4. [Personal Reflection](#personal-reflection)
-  1. [Data Security](#data-security)
-  2. [Data Extraction](#data-extraction)
-  3. [Data Cleaning](#data-cleaning)
-  4. [SQL](#sql)
-  5. [Matplotlib](#matplotlib)
-  6. [Conclusion](#conclusion)
+   1. [Data Security](#data-security)
+   2. [Data Extraction](#data-extraction)
+   3. [Data Cleaning](#data-cleaning)
+   4. [SQL](#sql)
+   5. [Matplotlib](#matplotlib)
+   6. [Conclusion](#conclusion)
 7. [Licence Information](#licence-information)
 
 ## Introduction 
@@ -23,6 +23,10 @@ Welcome to the Multinational Retail Data Centralisation Project!
 This project is part of my journey through the Cloud Engineering pathway at AiCore. The projects aim is to centralise and query data from a multinational retail business using cloud technologies.
 
 The script retrieves data from a multitude of sources on AWS, including an Amazon Relational Database Service (RDS) instance, a PDF document, JSON and CSV files in an AWS S3 bucket, and through interactions with an API. Following data retrieval, the script cleans these DataFrames and uploads them to a PostgreSQL database. SQL scripts are then run to generate the schema and query the business model.
+
+Here is the generated Entity-Relationship Diagram (ERD) for the sales_data database.
+
+![ERD of sales_data](https://i.imgur.com/mKZaZOp.png)
 
 ## Installation 
 
@@ -35,11 +39,7 @@ git clone https://github.com/Claudiomics/multinational-retail-data-centralisatio
 Then move into the folder and run the following code:
 ```
 python3 main.py
-
 ```
-This generates a sales_data database in postgresql, set up the schema (shown below) and runs queries on it.
-
-![ERD of sales_data](https://i.imgur.com/mKZaZOp.png)
 
 To upload to the sales_data database and query the database through SQL scripts, the database needed to be initialised and connected to:
 
@@ -58,10 +58,43 @@ aws configure
 
 ## Libraries Required for this project
 
-- [Pandas](#
+- [PyYAML](#)
+```
+pip install pyyaml
+```
+- [Psycopg2](#)
+```
+pip install psycopg2-binary
+```
+- [SQLAlchemy](#)
+```
+pip install sqlalchemy
+```
+- [Pandas](#)
+```
+pip install pandas 
+```
+- [Dateutil](#)
+```
+pip install python-dateutil
+```
+- [Boto3](#)
+```
+pip install boto3
+```
+- [Requests](#)
+```
+pip install requests
+```
+- [Tabula](#)
+```
+pip install tabula-py
+```
+- [NumPy and MatPlotLib](#)
+```
+pip install numpy matplotlib
 ```
 
-```
 
 ## File Structure 
 ```
