@@ -95,7 +95,6 @@ pip install tabula-py
 pip install numpy matplotlib
 ```
 
-
 ## File Structure 
 ```
 .
@@ -137,7 +136,7 @@ In future to increase security, I would use [GitGuardian](#https://docs.gitguard
 
 Developing methods to extract data from many different sources was a challenge to me, but one I learned a great deal from. 
 
-To not reveal senstive information I developed the **read_db_creds** and **init_db_engine** methods to be able to utilise the sensitive information stored in YAML files and be able to create an engine. As read_db_creds returns a dictionary, the init_db_engine uses this method to extract the relevant information and assemble the string in the correct order before creating an engine and connecting to SQAlchemy. This was used in conjunction with a YAML file containing the credentials to connect to an AWS RDS database.
+I developed the **read_db_creds** and **init_db_engine** methods to be able to utilise the sensitive information stored in YAML files and be able to create an engine. As read_db_creds returns a dictionary, the init_db_engine uses this method to extract the relevant information and assemble the string in the correct order before creating an engine and connecting to SQAlchemy. This was used in conjunction with a YAML file containing the credentials to connect to an AWS RDS database.
 
 To retrieve the data stored in the RDS, firstly I developed the **list_db_tables** method to list the names of the 'public' tables within so you can specify which table to extract data from when retrieving it. This method originally returned a tuple, so required a list comprehension to return only the first element of each tuple in the **list_of_tables** variable. The result of this **list_db_tables** method was used to get the user data table name and retrieve the data using the **read_rds_table** method which uses pandas to convert and return the table into a dataframe.
 
@@ -153,7 +152,7 @@ Personally, I found developing these extraction methods the most difficult part 
 
 ### Data Cleaning
 
-At first I struggled with developing the cleaning methods as I was unable to fully visualise the uncleaned DataFrame to see what parts of the code to clean. I was able to talk to AiCore's Vander and he showed me a brilliant way to visualise the uncleaned data and test out different cleaning methods before developing the actual method in the DatabaseCleaning class. I have detailed this below:
+At first I struggled with developing the cleaning methods as I was unable to fully visualise the uncleaned DataFrame to see what parts of the code needed changing. I was able to talk to AiCore's Vander and he showed me a brilliant way to visualise the uncleaned data and test out different cleaning methods before developing the actual method in the DatabaseCleaning class. I have detailed this below:
 
 - Within VSCode, download the extension called 'Excel Viewer'
 - After you have retrieved your unclean DataFrame (unclean_df), transfer it into a CSV file
@@ -177,13 +176,11 @@ print(unclean_df.head(20))
 ```
 clean_df.to_csv('clean_df.csv')
 ```
-Thank you Vander!
+When exploring the data, I noticed across all tables that some rows included invalid data which needed removing, along with any columns with NULL. I used a mask in all my cleaning methods to filter the data and return only the rows which contained valid data. This took a while for me to figure out, as before, I had tried delete these rows individually by searching for the specific data that was causing the error and deleting the rows one-by-one. The use of the mask was very efficient and removed NULL rows without me having to run that as a separate command.
 
-When exploring the data, I noticed across all tables that some rows included invalid data which needed removing, along with any columns with NULL. I used a mask in all my cleaning methods to filter the data and return only the rows which contained valid data. This took a while for me to figure out, as before, I had tried delete these rows individually by searching for the specific data that was causing the error and deleting them one by one. The use of the mask was very efficient and removed NULL rows without me having to run that as a separate command.
+I used a _for loop_ and a column-type dictionary to convert the datatypes of the rows to the correct types in one go. In my **clean_user_data** method, this for loop didn't work for the date columns, so I converted these separately as some of the data was in a format that was unreadable. I used the parse function from dateutils to deal with this.
 
-I used a for loop and a column type dictionary to convert the datatypes of the rows to the correct types in one go. In my **clean_user_data** method, this for loop didn't work for the date columns, so I converted these separately as some of the data was in a format that was unreadable, so I used the parse function from dateutils to deal with that.
-
-Within the **clean_card_data** there were many card numbers that contained question marks, which I removed using a for loop and a replace statement. Similarly, in **clean_store_data** there were staff numbers with letters added in, which I replaced manually before being able to cast the column to an integer.
+Within the **clean_card_data** there were many card numbers that contained question marks, which I removed using a _for loop_ and a replace statement. Similarly, in **clean_store_data** there were staff numbers with letters added in, which I replaced manually before being able to cast the column to an integer.
 
 The **convert_product_weights** was used to convert a column from the products DataFrame with mixed-unit weights into just weights as kg. This required the use of regex, which I had limited exposure to previously. AiCore's Ismael was able to direct me to [RegexOne](#https://regexone.com/) which I used in conjunction with [regex101](#https://regex101.com/) to develop code which separates the numeric weight and unit for conversion to kg.
 
@@ -199,17 +196,17 @@ Overall, I would have liked to troubleshoot my methods a bit more as I get a lot
 
 ### SQL 
 
-I was able to set up and manage the sales_data PostgreSQL database including schema creation and SQL queries using SQLAlchemy through VSCode. I had some trouble trying to create the connection without typing my password and other credentials directly into the connection string, however I managed to do this by using the **init_db_creds** method to retrieve the values of my key:value pairs returned from the **init_db_creds** dictionary. When I had figured out how to run an sql file from my main python file, I took time to develop the function to return the in a way that would be easy for the user to read and understand. I also included try, except blocks to handle any queries that wouldn't be able to run. I am very pleased with how this runs, however in future, I would try to merge the **execute_schema_sql_file** and **execute_query_sql_file** functions together as I think I repeat some of my code.
+I was able to set up and manage the sales_data PostgreSQL database including schema creation and SQL queries using SQLAlchemy through VSCode. I had some trouble trying to create the connection without typing my password and other credentials directly into the connection string, however I managed to do this by using the **init_db_creds** method to retrieve the values of my key:value pairs returned from the **init_db_creds** dictionary. When I had figured out how to run an SQL file from my main python file, I took time to develop the function to return the data in a way that would be easy for the user to read and understand. I also included try, except blocks to handle any queries that wouldn't be able to run. I am very pleased with how this runs, however in future, I would try to merge the **execute_schema_sql_file** and **execute_query_sql_file** functions together as I repeat some code.
 
 The last query to retrieve business insights gave me some trouble as it took me a while to realise I needed to use a common table expression (cte) to return the desired result. I also learned to understand the LEAD() function which uses the previous entry in the column before to calculate new information. Additionally, as my **execute_query_sql_file** had previously only run queries that started with 'SELECT' I had to adapt it to also execute 'WITH'.
 
 ### Matplotlib 
 
-I included this part of code into my project as a bit of extra fun. It was my first exposure to matplotlib as I think it's very important to be able to visualise data if presenting to the business owner. I used the output of query five to create a pie chart that pops up when the code is run which shows the percentage of sales each store type returns. Unfortunately, I couldn't figure out how to automatically generate from the output of the SQL query, so I needed to input the data manually, however in future this is something that I would aim to do. Lastly, I don't know why the chart title doesn't show up on the graph, which I would like to include in future.
+I included this part of code into my project as a bit of extra fun. It was my first exposure to matplotlib as I think it's very important to be able to visualise data when presenting to a business owner. I used the output of query five to create a pie chart that pops up when the code is run which shows the percentage of sales each store type returns. Unfortunately, I couldn't figure out how to automatically generate this from the output of the SQL query, so I needed to input the data manually, however in future this is something that I would aim to do. Lastly, I don't know why the chart title doesn't show up on the graph, which I would like to include in future.
 
 ### Conclusion 
 
-Overall, I am happy with how I completed this project. It was a steep learning curve and many times I felt overwhelmed with all the things I had to learn. I was able to retrieve data from cloud resources such as an AWS RDS, a CSV, JSON and PDF from an S3 bucket, and used an API. I managed to visualise the data effectively and develop cleaning method for each DataFrame. I learned the basics of RegEx and how to keep any sensitive information from being uploaded to github, while still using it in the script. My main.py script looks aesthetically pleasing and easy to follow as I have defined the functions all in one go at the beginning of the document and used an if __name__ == "__main__": block to run the actual script in one go.
+Overall, I am happy with how I completed this project. It was a steep learning curve and many times I felt overwhelmed with all the things I had to learn. I was able to retrieve data from cloud resources such as an AWS RDS, a CSV, JSON and PDF from an S3 bucket, and used an API. I managed to visualise the data effectively and develop cleaning method for each DataFrame. I learned the basics of RegEx and how to keep any sensitive information from being uploaded to github, while still using the values in the script. My main.py script looks aesthetically pleasing and easy to follow as I have defined the functions all in one go at the beginning of the document and used an **if __name__ == "__main__":** block to run the actual script in one go.
 
 In future, I would improve my data cleaning skills so I don't get any warning messages and possibly extract more of the code in my main.py file so it's easier to understand. I'd also like to be able to generate an Entity-Relationship Diagram (ERD) of the database using python, as this is something I tried to do but failed. 
 
