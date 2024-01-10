@@ -41,9 +41,8 @@ class DatabaseConnector:
         engine = create_engine(f"postgresql+psycopg2://{dict_yaml_func['USER']}:{dict_yaml_func['PASSWORD']}@{dict_yaml_func['HOST']}:{dict_yaml_func['PORT']}/{dict_yaml_func['DATABASE']}")
         # Connect to the database using the engine
         engine.connect()
-
         return engine
-    
+
     def list_db_tables(self, file):
         '''
         This function lists all tables in the connected database.

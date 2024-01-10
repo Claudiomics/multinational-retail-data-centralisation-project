@@ -1,14 +1,19 @@
-from data_cleaning import DatabaseCleaning
-from database_utils import DatabaseConnector
-from data_extraction import DataExtractor
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
 import yaml
+import psycopg2
+from psycopg2 import sql
+from sqlalchemy import create_engine, text
+
+from database_utils import DatabaseConnector
+from data_cleaning import DatabaseCleaning
+from data_extraction import DataExtractor
 
 ''' This is the script where I will use the three different classes (DatabaseConnector,
 DataExtractor and DatabaseCleaning) to retrive data from a variety of sources, clean 
 the data and upload to the sales_data database in the relational database management 
-system PostgreSQL.'''
+system PostgreSQL. Finally, it will run two sql scripts which will create the database schema 
+and run queries on it.'''
 
 ### 1. Creating a connection to the AWS database
 
@@ -193,28 +198,155 @@ def date_data():
 
     return clean_date_df
 
-if __name__ == "__main__":
-    date_data()
-    orders_data()
-    product_data()
-    stores_data()
-    card_data()
-    user_data()
+date_data()
+orders_data()
+product_data()
+stores_data()
+card_data()
+user_data()
 
 ### 8. Create the Database Schema
+# This will be run using the create_schema.sql file and includes casting column datatypes, adding descriptive columns, assigning primary and foreign keys.
 
-# This will be run using the db_schema.sql file and includes casting column datatypes, adding descriptive columns, assigning primary and foreign keys.
-    
+# This function runs the input schema sql script
+def execute_schema_sql_file(creds, file_path):
+    '''
+    This function takes the SQL script from the given file to create the database schema.
+
+    Args:
+        creds (str): PostgreSQL connection string.
+        file_path (str): Path to the SQL script file.
+
+    Returns:
+        None
+    '''
+    with open(file_path, 'r') as sql_file:
+        sql_script = sql_file.read()
+    conn = psycopg2.connect(creds)
+
+    try:
+        # Create a cursor object
+        cursor = conn.cursor()
+        # Execute the SQL script
+        cursor.execute(sql_script)
+        # Commit the changes
+        conn.commit()
+        print("SQL script 'create_schema' executed successfully.")
+
+    except Exception as e:
+        print(f"Error executing 'create_schema' SQL script: {e}")
+
+    finally:
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+
+# Create connection to postgresql
+postgres_creds = database_connector.read_db_creds('my_creds.yaml')
+connection_str = f"host={postgres_creds['HOST']} dbname={postgres_creds['DATABASE']} user={postgres_creds['USER']} password={postgres_creds['PASSWORD']}"
+
+# Specify SQL file
+schema_sql_file_path = 'create_schema.sql'
+# Run function to create the schema
+execute_schema_sql_file(connection_str, schema_sql_file_path)
+
 ### 9. Query the Database  
+# Answer business questions about the sales 
 
-# Answering business questions about the sales 
-# Here's a sneak peak at the result queary 5: What percentage of sales come through each type of store?
+# This function queries the created database and prints the output of sql queries relating to the business
+def execute_query_sql_file(creds, file_path):
+    '''
+    This function takes the SQL script from the given file and prints the results of the queries.
 
-if __name__ == "__main__":
+    Args:
+        creds (str): PostgreSQL connection string.
+        file_path (str): Path to the SQL script file.
+
+    Returns:
+        None
+    
+    '''
+    # Open the SQL file to read mode
+    with open(file_path, 'r') as sql_file:
+        sql_script = sql_file.read()
+    
+    # Set up connection
+    conn = psycopg2.connect(creds)
+
+    try:
+        # Create a cursor object
+        cursor = conn.cursor()
+        # Split SQL script into individual statements
+        sql_commands = sql_script.split(';')
+        print("QUERIES: Q1. Returns the number of stores the business has in each country. Q2. Returns the top five locations which have the most stores. Q3. Returns the top 5 months that produced the largest number of sales. Q4. Returns the  amount made [0], number of products sold [1] for online and offline [3] purchases. Q5. Returns for each store type [0] the total sales [1] and percentage of sales [2] which came through. (Visualised with a pie chart too!) Q6. Returns the top 5 months [2] and years [1] in history that made the most amount is sales [0]. Q7. Returns staff headcount [0] by country [1]. Q8. Returns which 5 German [2] store types [1] have the highest total_sales [0]. Q9. The average time taken between each sale [1] grouped by year [0].")
+        query_number = 1
+
+        for command in sql_commands:
+            # Skip empty statements
+            if not command.strip():
+                continue
+
+            try:
+                # Execute the SQL command
+                cursor.execute(command)
+                # Fetch results for sql statements regardless of case
+                if command.strip().upper().startswith("SELECT") or command.strip().upper().startswith("WITH"):
+                    data = cursor.fetchall()
+                    print(f"Query {query_number} result:")
+                    print(data)
+                    # Increase Q number
+                    query_number += 1
+
+            except Exception as e:
+                print(f"Error executing SQL command: {e}")
+
+        # Commit the changes
+        conn.commit()
+
+        print("SQL script 'business_queries' executed successfully.")
+
+    except Exception as e:
+        print(f"Error executing 'business_queries' SQL script: {e}")
+
+    finally:
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+
+# Specify SQL file
+query_sql_file_path = 'business_queries.sql'
+# Run function to query the database
+execute_query_sql_file(connection_str, query_sql_file_path)
+
+
+# Here's a visual representation of the result of queary 5: What percentage of sales come through each type of store?
+
+def storetype_sales_piechart():
+    '''
+    This function generates a pie chart using Matplotlib to visualize the percentage of sales that come through each type of store in the database.
+    Generate a pie chart to visualize the percentage of sales through each type of store.
+
+    Args:
+        None
+
+    Returns:
+        None
+    '''
     fig = plt.figure()
+    # Add figure axes
     ax = fig.add_axes([0,0,1,1])
+    # set aspect ratio for it to be circular
     ax.axis('equal')
+
+    # Define store types
     store_type = ['Local', 'Web Portal', 'Super Store', 'Mall Kiosk', 'Outlet']
     percentage_total = np.array([44.557729, 22.357841, 15.853934, 9.048969, 8.181527])
-    ax.pie(percentage_total, labels=store_type, autopct='%1.2f%%')
+    
+    ax.pie(percentage_total, labels=store_type, autopct='%1.2f%%') # autopct='%1.2f%% adds percentage labels with two decimal places.
+    ax.set_title('Percentage of Sales by Store Type')
+
     plt.show()
+
+storetype_sales_piechart()
+
+
