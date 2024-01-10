@@ -8,10 +8,13 @@
 2. [Installation](#installation)
 3. [File Structure](#file-structure)
 4. [Personal Reflection](#personal-reflection)
-   1. [What have I learned?](#what-have-i-learned)
-   2. [Future Improvements](#future-improvements)
-   3. [Resources](#resources)
-5. [Licence Information](#licence-information)
+  1. [Data Security](#data-security)
+  2. [Data Extraction](#data-extraction)
+  3. [Data Cleaning](#data-cleaning)
+  4. [SQL](#sql)
+  5. [Matplotlib](#matplotlib)
+  6. [Conclusion](#conclusion)
+7. [Licence Information](#licence-information)
 
 ## Introduction 
 
